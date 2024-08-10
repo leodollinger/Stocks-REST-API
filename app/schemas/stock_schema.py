@@ -1,6 +1,6 @@
 from datetime import date
 from typing import List
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class PerformanceDataSchema(BaseModel):
@@ -46,3 +46,21 @@ class StockUpdateRequestSchema(BaseModel):
 
 class StockUpdateResponseSchema(BaseModel):
     message: str
+
+class PolygonStockData(BaseModel):
+    status: str
+    from_: str = Field(..., alias='from')
+    symbol: str
+    open_: float = Field(..., alias='open')
+    high: float
+    low: float
+    close: float
+    volume: float
+    afterHours: float
+    preMarket: float
+    model_config = ConfigDict(populate_by_name=True)
+
+class MarketWatchData(BaseModel):
+    company_name: str
+    performance_data: PerformanceDataSchema
+    competitors: List[CompetitorSchema]
