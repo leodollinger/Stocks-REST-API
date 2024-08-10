@@ -131,10 +131,16 @@ def test_update_stock_amount():
     }
 
 
-def test_update_stock_invalid_amount_error():
+def test_update_stock_invalid_amount_type_error():
     response = client.post("/stock/AAPL", json={"amount": 3.5})
 
     assert response.status_code == 422
+
+
+def test_update_stock_invalid_amount_error():
+    response = client.post("/stock/AAPL", json={"amount": -5})
+
+    assert response.status_code == 412
 
 
 def test_update_non_existent_stock_amount_error():

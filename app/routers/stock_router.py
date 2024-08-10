@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
-from datetime import datetime
 from sqlalchemy.orm import Session
 
+from app.controllers.stock_controller import *
 from app.models.stock_model import (
     Competitor,
     MarketCap,
@@ -11,42 +11,19 @@ from app.models.stock_model import (
 )
 from app.schemas.stock_schema import (
     StockModelResponseSchema,
-    StockValuesSchema,
-    PerformanceDataSchema,
-    CompetitorSchema,
-    MarketCapSchema,
     StockUpdateRequestSchema,
     StockUpdateResponseSchema,
 )
 from shared.dependencies import get_db
-from shared.exceptions import NotFound, PreconditionFailed
+from shared.exceptions import NotFound, PreconditionFailedName
 
 router = APIRouter(prefix="/stock")
 
 
 @router.get("/{stock_symbol}", response_model=StockModelResponseSchema)
 def get_stock_data(stock_symbol: str, db: Session = Depends(get_db)):
-    stock = (
-        db.query(Stock)
-        .join(StockValues, Stock.stock_values_id == StockValues.id, isouter=True)
-        .join(
-            PerformanceData,
-            Stock.performance_data_id == PerformanceData.id,
-            isouter=True,
-        )
-        .where(Stock.company_code.ilike(stock_symbol))
-        .first()
-    )
-    if stock is None:
-        raise NotFound(stock_symbol)
-
-    competitors = (
-        db.query(Competitor)
-        .join(Stock, Competitor.stock_id == Stock.id, isouter=True)
-        .join(MarketCap, Competitor.market_cap_id == MarketCap.id, isouter=True)
-        .where(Stock.company_code.ilike(stock_symbol))
-        .all()
-    )
+    stock = get_stock_by_company_code(db, stock_symbol)
+    competitors = get_stock_competitors_by_company_code(db, stock_symbol)
 
     return format_stock_response(stock, competitors)
 
@@ -59,14 +36,7 @@ def update_stock_amount(
     amount_data: StockUpdateRequestSchema,
     db: Session = Depends(get_db),
 ):
-    stock_id = (
-        db.query(Stock)
-        .filter(Stock.company_code.ilike(stock_symbol))
-        .update({Stock.purchased_amount: Stock.purchased_amount + amount_data.amount})
-    )
-    db.commit()
-    if stock_id == 0:
-        raise PreconditionFailed(stock_symbol)
+    update_stock_amount_by_company_code(db, stock_symbol, amount_data.amount)
 
     return StockUpdateResponseSchema(
         message=f"{amount_data.amount} units of stock {stock_symbol} were added to your stock record"
@@ -116,39 +86,3 @@ def init_stock(db: Session = Depends(get_db)):
     db.commit()
 
     return "initialized"
-
-
-def format_stock_response(
-    stock: Stock, competitors: Competitor
-) -> StockModelResponseSchema:
-    return StockModelResponseSchema(
-        status=stock.status,
-        purchased_amount=stock.purchased_amount,
-        purchased_status=stock.purchased_status,
-        request_data=stock.request_data,
-        company_code=stock.company_code,
-        company_name=stock.company_name,
-        stock_values=StockValuesSchema(
-            open=stock.stock_values.open,
-            high=stock.stock_values.high,
-            low=stock.stock_values.low,
-            close=stock.stock_values.close,
-        ),
-        performance_data=PerformanceDataSchema(
-            five_days=stock.performance_data.five_days,
-            one_month=stock.performance_data.one_month,
-            three_months=stock.performance_data.three_months,
-            year_to_date=stock.performance_data.year_to_date,
-            one_year=stock.performance_data.one_year,
-        ),
-        competitors=[
-            CompetitorSchema(
-                name=competitor.name,
-                market_cap=MarketCapSchema(
-                    currency=competitor.market_cap.currency,
-                    value=competitor.market_cap.value,
-                ),
-            )
-            for competitor in competitors
-        ],
-    )
