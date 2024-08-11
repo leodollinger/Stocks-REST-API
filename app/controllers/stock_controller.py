@@ -267,7 +267,7 @@ def format_scrap_stock_response(
 
 
 def get_stock_from_polygon(company_code: str) -> PolygonStockData:
-    """Gets stock data from polygon api /open-close (Has a 60s cache)
+    """Gets stock data from polygon api /open-close from two days ago (Has a 60s cache)
 
     Args:
         company_code (str): company stock code. E.g.: "aapl" or "AAPL"
@@ -278,9 +278,9 @@ def get_stock_from_polygon(company_code: str) -> PolygonStockData:
     Returns:
         PolygonStockData: Pydantic schema with polygon api data
     """
-    yesterday = datetime.now() - timedelta(1)
-    yesterdayFormatted = datetime.strftime(yesterday, "%Y-%m-%d")
-    url = f"https://api.polygon.io/v1/open-close/{company_code.upper()}/{yesterdayFormatted}"
+    twoDaysAgo = datetime.now() - timedelta(2)
+    twoDaysAgoFormatted = datetime.strftime(twoDaysAgo, "%Y-%m-%d")
+    url = f"https://api.polygon.io/v1/open-close/{company_code.upper()}/{twoDaysAgoFormatted}"
     response = cacheSession.request(
         "GET", url, headers={"Authorization": "Bearer bmN7i7CrzrpKqFvgbB1fEaztCwZKSUjJ"}
     )

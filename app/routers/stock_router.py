@@ -30,36 +30,6 @@ def get_stock_data(
 
     Returns:
         StockModelResponseSchema: Stock Model with every field of the Stock model
-        {
-            "status":String,
-            "purchased_amount":Integer,
-            "purchased_status":String,
-            "request_data":String,
-            "company_code":String,
-            "company_name":String,
-            "stock_values":{
-                "open":Float,
-                "high":Float,
-                "low":Float,
-                "close":Float
-            },
-            "performance_data":{
-                "five_days":Float,
-                "one_month":Float,
-                "three_months":Float,
-                "year_to_date":Float,
-                "one_year":Float
-            },
-            "competitors":[
-                {
-                    "name":String,
-                    "market_cap":{
-                        "currency":String,
-                        "value":Float
-                    }
-                }
-            ]
-        }
     """
     logger.debug(f"Starting {stock_symbol} on get route")
     stock_data = get_stock_by_company_code(db, stock_symbol)
@@ -83,7 +53,7 @@ def update_stock_amount(
         db (Session, optional): sqlalchemy session. Defaults to Depends(get_db).
 
     Returns:
-        StockUpdateResponseSchema: _description_
+        StockUpdateResponseSchema: Message object with name of stock and amount added
     """
     logger.debug(f"Starting {stock_symbol} on post route, adding {amount_data.amount}")
     update_stock_amount_by_company_code(db, stock_symbol, amount_data.amount)

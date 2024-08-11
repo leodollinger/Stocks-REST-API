@@ -42,12 +42,20 @@ def get_web_data(stock_symbol: str) -> MarketWatchData:
             "Object.defineProperty(navigator, 'webdriver', {get: () => undefined})"
         )
         page = context.new_page()
-        page.goto(f"https://www.google.com.br/")
-        page.goto(f"https://www.marketwatch.com/investing/stock/{stock_symbol}")
+        page.goto(
+            "https://www.google.com.br/", timeout=60000, wait_until="domcontentloaded"
+        )
+        page.goto(
+            f"https://www.marketwatch.com/investing/stock/{stock_symbol}",
+            timeout=60000,
+            wait_until="domcontentloaded",
+        )
 
         page.locator(".company__name").wait_for(timeout=10000, state="visible")
         company_name = page.locator(".company__name").first.inner_text()
-        performance_data = page.locator(".content__item.value.ignore-color").all_inner_texts()
+        performance_data = page.locator(
+            ".content__item.value.ignore-color"
+        ).all_inner_texts()
         competitorsRows = page.locator(
             ".Competitors > table > tbody > tr"
         ).all_inner_texts()
@@ -78,10 +86,6 @@ def get_web_data(stock_symbol: str) -> MarketWatchData:
         playwright.stop()
     except Exception as error:
         logger.error(error)
-
-        logger.error(
-            "It was not possible to get data from marketwatch website, antibot detected us"
-        )
         stock_data = MarketWatchData(
             company_name="",
             performance_data=PerformanceDataSchema(
@@ -91,11 +95,7 @@ def get_web_data(stock_symbol: str) -> MarketWatchData:
                 year_to_date=0.0,
                 one_year=0.0,
             ),
-            competitors=[
-                CompetitorSchema(
-                    name="", market_cap=MarketCapSchema(currency="", value=0.0)
-                )
-            ],
+            competitors=[],
         )
         browser.close()
         playwright.stop()
