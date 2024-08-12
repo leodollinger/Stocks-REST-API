@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import sys
 from typing import List
 from requests_cache.session import CachedSession
 from sqlalchemy.orm import Session
@@ -22,8 +23,10 @@ from shared.exceptions import NotFound, PreconditionFailedAmount, PreconditionFa
 import logging
 from playwright.sync_api import sync_playwright
 from functools import cache
-from xvfbwrapper import Xvfb
 import random
+
+if sys.platform.startswith("linux"):
+    from xvfbwrapper import Xvfb
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -306,8 +309,9 @@ def get_market_watch(company_code: str) -> MarketWatchData:
     Returns:
         MarketWatchData: pydantic schema with marketwatch website data. If process fails, return empty version of schema
     """
-    vdisplay = Xvfb()
-    vdisplay.start()
+    if sys.platform.startswith("linux"):
+        vdisplay = Xvfb()
+        vdisplay.start()
     try:
         logger.debug(f"starting crawler for stock {company_code}")
         user_agents = [
@@ -366,12 +370,14 @@ def get_market_watch(company_code: str) -> MarketWatchData:
         )
         browser.close()
         playwright.stop()
-        vdisplay.stop()
+        if sys.platform.startswith("linux"):
+            vdisplay.stop()
     except Exception as error:
         logger.error(error)
         browser.close()
         playwright.stop()
-        vdisplay.stop()
+        if sys.platform.startswith("linux"):
+            vdisplay.stop()
         raise NotFound(company_code)
 
     return stock_data

@@ -15,5 +15,7 @@ RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt \
 # 
 COPY . /code
 
+ENV SQLALCHEMY_DATABASE_URL="postgresql://postgres:cial_dnbstock0@stocks.c1agyi0ym4tm.us-east-1.rds.amazonaws.com:5432/postgres"
+
 # 
 CMD ["fastapi", "run", "main.py", "--port", "80"]
