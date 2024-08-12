@@ -261,7 +261,7 @@ class StockController:
         )
 
     def get_stock_from_polygon(self) -> PolygonStockData:
-        """Gets stock data from polygon api /open-close from two days ago (Has a 60s cache)
+        """Gets stock data from polygon api /open-close on day 2024-08-09 (Has a 60s cache)
 
         Raises:
             NotFound: If company can't be found on polygon api, raises NotFound error and return status 404
@@ -269,9 +269,7 @@ class StockController:
         Returns:
             PolygonStockData: Pydantic schema with polygon api data
         """
-        twoDaysAgo = datetime.now() - timedelta(2)
-        twoDaysAgoFormatted = datetime.strftime(twoDaysAgo, "%Y-%m-%d")
-        url = f"https://api.polygon.io/v1/open-close/{self.company_code.upper()}/{twoDaysAgoFormatted}"
+        url = f"https://api.polygon.io/v1/open-close/{self.company_code.upper()}/2024-08-09"
         response = cacheSession.request(
             "GET",
             url,
