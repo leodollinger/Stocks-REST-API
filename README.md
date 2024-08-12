@@ -1,7 +1,7 @@
 
 # Stocks-REST-API
 
-This is a Stocks REST API using Python and FastAPI. This API retrieves stock data from the polygon API and performs a data scraping from the Marketwatch financial website. Once retrieved, it persists the data on a Postgres DB, making it possible to manage the purchased amount for each **searched** stock (it's necessary to search for the stock before adding an purchased amount to it)
+This is a Stocks REST API using Python and FastAPI. This API retrieves stock data from the polygon API and performs a data scraping from the Marketwatch financial website. Once retrieved, it persists the data on a Postgres DB, making it possible to manage the purchased amount for each **searched** stock (it's necessary to search for the stock before adding a purchased amount to it)
 
 
 
