@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from app.controllers.stock_controller import *
+from app.controllers.stock_controller import StockController
 from app.schemas.stock_schema import (
     StockModelResponseSchema,
     StockUpdateRequestSchema,
@@ -32,7 +32,8 @@ def get_stock_data(
         StockModelResponseSchema: Stock Model with every field of the Stock model
     """
     logger.debug(f"Starting {stock_symbol} on get route")
-    stock_data = get_stock_by_company_code(db, stock_symbol)
+    stock_controller = StockController(stock_symbol, db)
+    stock_data = stock_controller.get_stock_by_company_code()
     logger.debug(f"Finishing {stock_symbol} on get route")
     return stock_data
 
@@ -55,8 +56,9 @@ def update_stock_amount(
     Returns:
         StockUpdateResponseSchema: Message object with name of stock and amount added
     """
+    stock_controller = StockController(stock_symbol, db)
     logger.debug(f"Starting {stock_symbol} on post route, adding {amount_data.amount}")
-    update_stock_amount_by_company_code(db, stock_symbol, amount_data.amount)
+    stock_controller.update_stock_amount_by_company_code(amount_data.amount)
     logger.debug(f"Finishing {stock_symbol} on post route")
     return StockUpdateResponseSchema(
         message=f"{amount_data.amount} units of stock {stock_symbol} were added to your stock record"
