@@ -47,7 +47,7 @@ curl -X 'GET' \
 ```
 `stock_symbol (str):` company stock code. E.g.: "aapl" or "AAPL".
 
-Returns a Json with stock data for the given symbol. There are two possible process with the get endpoint. If it is the first time searching for the stock, the application will search for it on the polygon API and perform a data scraping from the Marketwatch financial website and will then insert it on the database. If it is already on the database, the application gets the data from it.
+Returns a Json with stock data for the given symbol. There are two possible process with the get endpoint. If it is the first time searching for the stock, the application will search for it on the polygon API for the date 2024-08-09 and perform a data scraping from the Marketwatch financial website and will then insert it on the database. If it is already on the database, the application gets the data from it.
 
 Return:
 ```json
@@ -97,7 +97,8 @@ curl -X 'POST' \
 
 `amount (int):` desired amount to add into purchased amount.
 
-Update the stock entity with the purchased amount based on received argument: “amount” (of type Integer). Before updating the purchased amount for a certain stock, it is necessary to search for it on the get endpoint.
+Update the stock entity with the purchased amount based on received argument: “amount” (of type Integer). Before updating the purchased amount for a certain stock, it is necessary to search for it on the get endpoint. The current purchased amount plus the sended amount needs to be equal or greater than zero.
+
 Returns a Json with the message `“{amount} units of stock {stock_symbol} were added to your stock record”`.
 
 
